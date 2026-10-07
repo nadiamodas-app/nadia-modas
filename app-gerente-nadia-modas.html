@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#ea580c"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>Nádia Modas · Gerência</title>
+<style>
+:root{--acc:#f97316;--acc-d:#c2410c;--bg:#0a0a0c;--card:#17181c;--ink:#f5f5f6;--mut:#9ca3af;--line:#26272b;--inp:#1f2026;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--acc);color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:1.05rem;font-weight:700}
+header p{margin:2px 0 0;font-size:.8rem;opacity:.92}
+nav{display:flex;background:var(--acc-d);position:sticky;top:0;z-index:5}
+nav button{flex:1;padding:11px 4px;border:0;background:transparent;color:#ffffffb0;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-bottom-color:#fff}
+main{padding:12px;max-width:560px;margin:0 auto;padding-bottom:48px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.kpi{text-align:center}
+.kpi .big{font-size:2.1rem;font-weight:800;color:var(--acc)}
+.kpi .sub{font-size:.8rem;color:var(--mut);margin-top:2px}
+label{display:block;font-size:.8rem;font-weight:600;margin:10px 0 4px}
+input,select{width:100%;padding:11px;border:1px solid #3f4046;border-radius:10px;font-size:1rem;background:var(--inp);color:var(--ink)}
+input::placeholder{color:#6b7280}
+.btn{display:block;width:100%;padding:13px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:1rem;font-weight:700;cursor:pointer;margin-top:14px}
+.btn.sec{background:#2a2b30;color:var(--ink)}
+.btn.sm{display:inline-block;width:auto;padding:7px 12px;font-size:.8rem;margin-top:8px}
+.btn.danger{background:#7f1d1d;color:#fecaca}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.72rem;font-weight:700}
+.b-ok{background:#052e16;color:var(--ok)}.b-pend{background:#3f2d06;color:var(--warn)}.b-bad{background:#450a0a;color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+td.n,th.n{text-align:right}
+.mut{color:var(--mut);font-size:.78rem}
+.pos{color:var(--ok);font-weight:700}.neg{color:var(--bad);font-weight:700}
+ul.vendas{list-style:none;margin:0;padding:0}
+ul.vendas li{display:flex;justify-content:space-between;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:.88rem;align-items:center}
+dialog{border:0;border-radius:14px;max-width:420px;width:92%;padding:16px;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#000a}
+h3{margin:4px 0 2px;font-size:.95rem}
+.preview{background:#f9731616;border:1px solid #f9731666;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.9rem}
+.preview b{font-size:1.15rem;color:var(--acc)}
+.chk{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.85rem}
+.chk input{width:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>Nádia Modas · Gerência</h1>
+  <p id="sub">—</p>
+</header>
+<nav>
+  <button id="t-reg" class="on" onclick="showTab('reg')">Registrar</button>
+  <button id="t-conf" onclick="showTab('conf')">Conferência</button>
+  <button id="t-cfg" onclick="openCfg()" style="flex:0 0 52px">⚙︎</button>
+</nav>
+<main>
+
+<!-- REGISTRAR (para venda eventual atendida pela gerência) -->
+<section id="tab-reg">
+  <div class="card">
+    <h3>Venda da gerência</h3>
+    <div class="mut" style="margin-bottom:6px">Para venda atendida por você — vai para a planilha com seu nome.</div>
+    <form id="fVenda" onsubmit="return false" autocomplete="off">
+      <label for="valor">Valor da venda (R$)</label>
+      <input id="valor" name="valor" type="number" step="0.01" min="0" inputmode="decimal" placeholder="Ex.: 350,00" required oninput="calcPreview()">
+      <label for="cliente">Cliente</label>
+      <input id="cliente" name="cliente" type="text" placeholder="Nome da cliente" required>
+      <label for="forma">Forma de pagamento</label>
+      <select id="forma" name="forma" required onchange="calcPreview()">
+        <option value="">Escolha...</option>
+        <option value="pix">Dinheiro / Pix</option>
+        <option value="cartao">Cartão (crédito/débito)</option>
+        <option value="notinha">Notinha (crediário)</option>
+      </select>
+      <div id="wParcelas" hidden>
+        <label for="parcelas">Parcelas combinadas (informativo)</label>
+        <select id="parcelas" name="parcelas">
+          <option value="1">1x</option><option value="2">2x</option><option value="3">3x</option>
+          <option value="4">4x</option><option value="5">5x</option><option value="6">6x</option>
+        </select>
+      </div>
+      <div id="wComp" hidden>
+        <label for="comp">Código da venda (maquininha)</label>
+        <input id="comp" name="comp" type="text" placeholder="Ex.: 123456">
+        <div class="mut" style="margin-top:4px">No cartão é obrigatório — código que sai no comprovante da maquininha.</div>
+      </div>
+      <div class="chk"><input type="checkbox" id="conjunta" onchange="calcPreview()"><span>Venda conjunta (divide 50/50)</span></div>
+      <div class="preview" id="preview">Preencha valor e forma de pagamento para ver a bonificação.</div>
+      <button class="btn" type="button" onclick="addVenda()">Registrar venda</button>
+    </form>
+  </div>
+</section>
+
+<!-- CONFERÊNCIA -->
+<section id="tab-conf" hidden>
+  <div class="card kpi">
+    <div class="sub" id="confMes">Mês —</div>
+    <div class="big" id="kpiTotal">—</div>
+    <div class="sub" id="kpiBon">—</div>
+    <button class="btn sm sec" onclick="carregarPlanilha()">Atualizar</button>
+    <span class="mut" id="confInfo"></span>
+  </div>
+  <div id="avisoUrl" class="card" hidden>
+    <div style="color:var(--warn);font-weight:700">Conecte a planilha</div>
+    <div class="mut">Abra as configurações (⚙︎) e informe a URL do Apps Script — veja o guia de instalação.</div>
+  </div>
+  <div class="card">
+    <h3>Por vendedora</h3>
+    <table>
+      <tr><th>Vendedora</th><th class="n">Vendas no mês</th><th class="n">Bonificação</th><th class="n">Pend.</th></tr>
+      <tbody id="tbVend"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Bater caixa</h3>
+    <table>
+      <tr><th>Forma</th><th class="n">Registrado</th><th class="n">Pendente</th></tr>
+      <tr><td>Cartão</td><td class="n" id="cCartao">—</td><td class="n" id="pCartao">—</td></tr>
+      <tr><td>Pix / Cash</td><td class="n" id="cPix">—</td><td class="n" id="pPix">—</td></tr>
+      <tr><td>Notinha</td><td class="n" id="cNotinha">—</td><td class="n">—</td></tr>
+    </table>
+    <div class="mut" style="margin-top:6px">Notinha não exige conferência externa — é a taxa menor, ninguém registra notinha para ganhar mais.</div>
+  </div>
+  <div class="card">
+    <h3>Fontes externas</h3>
+    <label for="maq">Total cartão na maquininha (R$)</label>
+    <input id="maq" type="number" step="0.01" min="0" inputmode="decimal" oninput="saveConf();renderConf()">
+    <label for="ext">Total Pix no extrato (R$)</label>
+    <input id="ext" type="number" step="0.01" min="0" inputmode="decimal" oninput="saveConf();renderConf()">
+    <div id="diverg" style="margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <h3>Vendas pendentes de confirmação</h3>
+    <ul class="vendas" id="listaPend"></ul>
+    <div class="mut" id="semPend">Nenhuma pendência — tudo confirmado.</div>
+  </div>
+  <div class="card">
+    <h3>Fechamento</h3>
+    <div class="mut">A bonificação só é fechada depois da conferência. Último fechamento: <span id="ultFech">—</span></div>
+    <button class="btn" onclick="fecharSemana()">Fechar bonificação da semana</button>
+  </div>
+</section>
+</main>
+
+<dialog id="dlgCfg">
+  <h3 style="margin-top:0">Configurações</h3>
+  <label for="cfgNome">Seu nome (para vendas que você registrar)</label>
+  <input id="cfgNome" type="text" placeholder="Ex.: Nádia">
+  <div class="row" style="display:flex;gap:8px">
+    <div style="flex:1"><label for="cfgTG">Taxa garantido (%)</label><input id="cfgTG" type="number" step="0.1" min="0"></div>
+    <div style="flex:1"><label for="cfgTN">Taxa notinha (%)</label><input id="cfgTN" type="number" step="0.1" min="0"></div>
+  </div>
+  <div class="mut" style="margin-top:4px">Se mudar as taxas, atualize também o app das vendedoras e o script da planilha (veja o guia).</div>
+  <label for="cfgUrl">URL do Google Sheets</label>
+  <input id="cfgUrl" type="url" placeholder="Cole aqui a URL do Apps Script">
+  <button class="btn sm sec" onclick="testConn()">Testar conexão</button>
+  <span class="mut" id="cfgTest"></span>
+  <button class="btn" onclick="saveCfg()">Salvar</button>
+</dialog>
+
+<script>
+const LS_C='nm_gerente_v1', LS_V='nm_vendas_ger_v1';
+/* Armazenamento seguro: se o visualizador bloquear localStorage, o app
+   funciona em memória e avisa que não está salvando. */
+const LS_OK=(()=>{try{localStorage.setItem('__nm_t','1');localStorage.removeItem('__nm_t');return true;}catch(e){return false;}})();
+let _mem={};
+function lsGet(k){if(LS_OK)return localStorage.getItem(k);return (k in _mem)?_mem[k]:null;}
+function lsSet(k,v){if(LS_OK)localStorage.setItem(k,v);else _mem[k]=v;}
+let cfg=JSON.parse(lsGet(LS_C)||'null')||{nome:'',tG:1.5,tN:1.0,url:'',conf:{},fech:[]};
+let vendas=JSON.parse(lsGet(LS_V)||'[]'); // vendas registradas neste celular
+let remote=[],remoteFech=[],connEstado='';
+const fmt=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const mesKey=d=>d.slice(0,7);
+const hojeISO=()=>new Date().toISOString().slice(0,10);
+function save(){lsSet(LS_C,JSON.stringify(cfg));lsSet(LS_V,JSON.stringify(vendas));}
+function taxaFor(v){return (v.forma==='notinha'||v.status==='pendente')?cfg.tN:cfg.tG;}
+function bonif(v){const b=v.valor*taxaFor(v)/100;return v.conjunta?b/2:b;}
+function formaLabel(f){return f==='pix'?'Pix/Cash':f==='cartao'?'Cartão':'Notinha';}
+
+function showTab(t){
+  for(const x of['reg','conf']){document.getElementById('tab-'+x).hidden=x!==t;document.getElementById('t-'+x).classList.toggle('on',x===t);}
+  if(t==='conf')carregarPlanilha();
+  renderAll();
+}
+function calcPreview(){
+  const valor=parseFloat(document.getElementById('valor').value)||0;
+  const forma=document.getElementById('forma').value;
+  document.getElementById('wParcelas').hidden=forma!=='notinha';
+  document.getElementById('wComp').hidden=!(forma==='cartao'||forma==='pix');
+  if(!valor||!forma){document.getElementById('preview').innerHTML='Preencha valor e forma de pagamento para ver a bonificação.';return;}
+  const conj=document.getElementById('conjunta').checked;
+  const comp=document.getElementById('comp').value.trim();
+  const pend=forma==='cartao'&&!comp;
+  const taxa=(forma==='notinha'||pend)?cfg.tN:cfg.tG;
+  let b=valor*taxa/100; if(conj)b/=2;
+  let txt=`Bonificação: <b>${fmt(b)}</b> <span class="mut">(${taxa}%${conj?' · 50/50':''})</span>`;
+  if(pend)txt+=`<div class="mut">Pendente de código da maquininha — recebe taxa de notinha até confirmar.</div>`;
+  document.getElementById('preview').innerHTML=txt;
+}
+function addVenda(){
+  const valor=parseFloat(document.getElementById('valor').value);
+  const forma=document.getElementById('forma').value;
+  if(!valor||!forma)return false;
+  const comp=document.getElementById('comp').value.trim();
+  const pend=forma==='cartao'&&!comp;
+  const v={id:Date.now()+''+Math.floor(Math.random()*999),
+    data:new Date().toISOString(),vendedora:cfg.nome||'Gerência',cliente:document.getElementById('cliente').value.trim(),
+    valor,forma,parcelas:forma==='notinha'?document.getElementById('parcelas').value:'',
+    comp,status:pend?'pendente':'ok',conjunta:document.getElementById('conjunta').checked,sync:cfg.url?'fila':'local'};
+  vendas.push(v);save();
+  document.getElementById('fVenda').reset();document.getElementById('wParcelas').hidden=true;document.getElementById('wComp').hidden=true;
+  calcPreview();renderAll();
+  if(cfg.url)syncOne(v);
+  return false;
+}
+async function syncOne(v){
+  if(!cfg.url)return;
+  try{const r=await fetch(cfg.url,{method:'POST',body:JSON.stringify({action:'add',venda:v})});
+    v.sync=r.ok?'enviado':'falha';}
+  catch(e){v.sync='falha';}
+  save();
+}
+async function carregarPlanilha(){
+  if(!cfg.url){document.getElementById('avisoUrl').hidden=false;connEstado='sem-url';renderConf();return;}
+  document.getElementById('avisoUrl').hidden=true;
+  document.getElementById('confInfo').textContent=' carregando...';
+  try{
+    const r=await fetch(cfg.url+'?action=list');
+    const j=await r.json();
+    if(j.ok){remote=j.vendas||[];remoteFech=j.fechamentos||[];connEstado='ok';
+      document.getElementById('confInfo').textContent=' atualizado: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+    else{connEstado='erro';document.getElementById('confInfo').textContent=' falhou: '+(j.msg||'?');}
+  }catch(e){connEstado='erro';document.getElementById('confInfo').textContent=' sem conexão — exibindo último carregamento.';}
+  renderConf();
+}
+function mesVendas(){
+  const mes=mesKey(hojeISO());
+  /* A planilha grava datas em formatos variados (dd/MM/AAAA na célula,
+     "Tue Oct 06 2026..." como valor bruto, AAAA-MM-DD em ISO) — extrai
+     o ano-mês de qualquer um deles antes de comparar com o mês atual. */
+  const mesDe=d=>{
+    if(!d)return '';
+    const s=String(d).trim();
+    if(/^\d{4}-\d{2}/.test(s))return s.slice(0,7);            // AAAA-MM-DD
+    const m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);        // dd/MM/AAAA
+    if(m)return m[3]+'-'+m[2].padStart(2,'0');
+    const dt=new Date(s);                                     // "Tue Oct 06 2026..."
+    if(!isNaN(dt))return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
+    return '';
+  };
+  return remote.filter(v=>mesDe(v.data)===mes||mesKey(v.data)===mes);
+}
+function renderAll(){
+  document.getElementById('sub').textContent=(cfg.nome||'Gerência')+' · '+new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  renderConf();
+}
+function renderConf(){
+  const mes=mesKey(hojeISO());
+  document.getElementById('confMes').textContent='Mês '+mes.split('-').reverse().join('/');
+  const vs=(connEstado==='ok'||remote.length)?mesVendas():vendas.filter(v=>mesKey(v.data)===mes);
+  let total=0,bon=0,pix=0,cartaoO=0,cartaoP=0,not=0;
+  const porVend={};
+  for(const v of vs){
+    total+=Number(v.valor)||0;
+    const b=bonif(v);
+    if(v.status==='pendente')bon+=b;else bon+=b;
+    if(v.forma==='notinha')not+=Number(v.valor);
+    else if(v.forma==='cartao'){if(v.status==='pendente')cartaoP+=Number(v.valor);else cartaoO+=Number(v.valor);}
+    else{if(v.status==='pendente')pix+=0;else pix+=Number(v.valor);}
+    const k=v.vendedora||'—';
+    porVend[k]=porVend[k]||{v:0,b:0,p:0};
+    porVend[k].v+=Number(v.valor);porVend[k].b+=b;if(v.status==='pendente')porVend[k].p++;
+  }
+  document.getElementById('kpiTotal').textContent=fmt(total);
+  document.getElementById('kpiBon').textContent='Bonificação estimada: '+fmt(bon)+(connEstado==='ok'?'':' (só deste celular)');
+  document.getElementById('cCartao').textContent=fmt(cartaoO);
+  document.getElementById('pCartao').textContent=cartaoP?fmt(cartaoP):'—';
+  document.getElementById('cPix').textContent=fmt(pix);
+  document.getElementById('pPix').textContent=cartaoP?'—':'—';
+  document.getElementById('cNotinha').textContent=fmt(not);
+  const tb=document.getElementById('tbVend');tb.innerHTML='';
+  const nomes=Object.keys(porVend).sort();
+  for(const k of nomes){
+    const x=porVend[k];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${k}</td><td class="n">${fmt(x.v)}</td><td class="n">${fmt(x.b)}</td><td class="n">${x.p?'<span class="badge b-pend">'+x.p+'</span>':'—'}</td>`;
+    tb.appendChild(tr);
+  }
+  if(!nomes.length)tb.innerHTML='<tr><td colspan="4" class="mut">Nenhuma venda no mês.</td></tr>';
+  const c=cfg.conf||{};const mc=c[mes]||{};
+  if(document.activeElement!==document.getElementById('maq'))document.getElementById('maq').value=mc.maq??'';
+  if(document.activeElement!==document.getElementById('ext'))document.getElementById('ext').value=mc.ext??'';
+  let html='';
+  if(mc.maq!=null&&mc.maq!==''){
+    const d=(cartaoO+cartaoP)-parseFloat(mc.maq);
+    html+=`Cartão vs. maquininha: ${d===0?'<span class="pos">✓ bateu</span>':`<span class="${d>0?'neg':'pos'}">${d>0?'⚠ app R$ '+Math.abs(d).toFixed(2)+' acima':'✓ app R$ '+Math.abs(d).toFixed(2)+' abaixo'}</span>`}<br>`;
+  }
+  if(mc.ext!=null&&mc.ext!==''){
+    const d=pix-parseFloat(mc.ext);
+    html+=`Pix vs. extrato: ${d===0?'<span class="pos">✓ bateu</span>':`<span class="${d>0?'neg':'pos'}">${d>0?'⚠ app R$ '+Math.abs(d).toFixed(2)+' acima':'✓ app R$ '+Math.abs(d).toFixed(2)+' abaixo'}</span>`}`;
+  }
+  document.getElementById('diverg').innerHTML=html;
+  const pend=vs.filter(v=>v.status==='pendente');
+  const lp=document.getElementById('listaPend');lp.innerHTML='';
+  document.getElementById('semPend').hidden=pend.length>0;
+  for(const v of pend){
+    const li=document.createElement('li');
+    li.innerHTML=`<div><b>${fmt(v.valor)}</b> · ${v.cliente}<br><span class="mut">${formaLabel(v.forma)} · ${v.vendedora} · ${String(v.data).slice(8,10)}/${String(v.data).slice(5,7)}</span></div>
+      <div><button class="btn sm" onclick="confirmar('${v.id}')">Confirmar</button> <button class="btn sm danger" onclick="virouNotinha('${v.id}')">Virou notinha</button></div>`;
+    lp.appendChild(li);
+  }
+  const uf=cfg.fech&&cfg.fech.length?cfg.fech[cfg.fech.length-1]:null;
+  document.getElementById('ultFech').textContent=uf?uf.data+' · '+fmt(uf.bonif):'—';
+}
+function saveConf(){
+  const mes=mesKey(hojeISO());cfg.conf=cfg.conf||{};
+  cfg.conf[mes]={maq:document.getElementById('maq').value,ext:document.getElementById('ext').value};save();
+}
+async function confirmar(id){
+  const v=remote.find(x=>String(x.id)===String(id));
+  if(v){v.status='ok';renderConf();}
+  if(cfg.url){try{await fetch(cfg.url,{method:'POST',body:JSON.stringify({action:'update',id:id,status:'ok'})});}catch(e){}}
+  carregarPlanilha();
+}
+async function virouNotinha(id){
+  const v=remote.find(x=>String(x.id)===String(id));
+  if(v){v.forma='notinha';v.status='ok';v.parcelas='';renderConf();}
+  if(cfg.url){try{await fetch(cfg.url,{method:'POST',body:JSON.stringify({action:'update',id:id,forma:'notinha',status:'ok'})});}catch(e){}}
+  carregarPlanilha();
+}
+async function fecharSemana(){
+  const vs=mesVendas();
+  const total=vs.reduce((s,v)=>s+Number(v.valor),0);
+  const bon=vs.reduce((s,v)=>s+bonif(v),0);
+  if(vs.some(v=>v.status==='pendente')&&!confirm('Ainda há vendas pendentes de confirmação. Fechar mesmo assim?'))return;
+  const data=new Date().toLocaleDateString('pt-BR');
+  cfg.fech.push({data:data,mes:mesKey(hojeISO()),bonif:bon,total:total});save();
+  if(cfg.url){try{await fetch(cfg.url,{method:'POST',body:JSON.stringify({action:'fechar',data:data,total:total,bonif:Math.round(bon*100)/100})});}catch(e){}}
+  renderConf();
+  alert('Bonificação fechada: '+fmt(bon));
+}
+async function testConn(){
+  document.getElementById('cfgTest').textContent=' testando...';
+  try{const r=await fetch(document.getElementById('cfgUrl').value,{method:'POST',body:JSON.stringify({action:'ping'})});
+    const j=await r.json();document.getElementById('cfgTest').textContent=j.ok?' ✓ conectado!':' ✗ resposta inesperada';}
+  catch(e){document.getElementById('cfgTest').textContent=' ✗ falhou — confira a URL e a implantação';}
+}
+function openCfg(){
+  const d=document.getElementById('dlgCfg');d.showModal();
+  document.getElementById('cfgNome').value=cfg.nome||'';
+  document.getElementById('cfgTG').value=cfg.tG;document.getElementById('cfgTN').value=cfg.tN;
+  document.getElementById('cfgUrl').value=cfg.url||'';
+}
+function saveCfg(){
+  cfg.nome=document.getElementById('cfgNome').value.trim();
+  cfg.tG=parseFloat(document.getElementById('cfgTG').value)||1.5;
+  cfg.tN=parseFloat(document.getElementById('cfgTN').value)||1.0;
+  cfg.url=document.getElementById('cfgUrl').value.trim();
+  save();document.getElementById('dlgCfg').close();renderAll();
+  if(cfg.url)carregarPlanilha();
+}
+if(!cfg.url)document.getElementById('avisoUrl').hidden=false;
+renderAll();
+</script>
+</body>
+</html>
